@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		creationComplete="init(event)"
+		actionBarVisible="false" 
+		tabBarVisible="false" 
+		backgroundColor="0x000000"
+		resize="resizeHandler(event)"
+		
+		title="">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.graphics.BitmapScaleMode;
+			
+			import spark.transitions.SlideViewTransition;
+			import spark.transitions.ViewTransitionDirection;
+			
+			protected function onComplete(event:Event):void
+			{
+				busyIndicator.visible = false;
+				statusLabel.visible = false;
+				image.width = width;
+				image.height = height;
+			}
+			
+			protected function init(event:FlexEvent):void
+			{
+				if(data)
+				{
+					image.width = width;
+					image.height = height;
+					image.scaleMode = BitmapScaleMode.LETTERBOX;
+					image.smooth = true;
+					image.source = data.source;
+					statusLabel.visible = true;
+					busyIndicator.visible = true;
+					
+					if(data.navigationEnabled)
+					{
+						//imageGroup.addEventListener(TransformGestureEvent.GESTURE_SWIPE, onSwipe);
+					}
+					_halfHeight = height/2;
+					_halfWidth = width/2;
+				}
+			}
+			
+			private var _halfWidth:Number;
+			private var _halfHeight:Number;
+			
+			private var _oldScale:Number;
+			protected function onZoom(event:TransformGestureEvent):void
+			{
+				if(event.phase == GesturePhase.BEGIN)
+				{
+					scroller.viewport.clipAndEnableScrolling = false;
+				}
+				if(event.phase == GesturePhase.UPDATE)
+				{
+					image.scaleX *= event.scaleX;
+					image.scaleY *= event.scaleY;
+					
+					image.x =  _halfWidth - _halfWidth * image.scaleX;
+					image.y =  _halfHeight - _halfHeight * image.scaleY;
+				}
+				
+				if(event.phase == GesturePhase.END)
+				{
+					if(image.scaleX < 1)
+					{
+						image.scaleX = 1;
+						image.scaleY = 1;
+					}
+					scroller.viewport.clipAndEnableScrolling = true;
+					image.x = 0;
+					image.y = 0;
+					imageGroup.horizontalScrollPosition =  _halfWidth * image.scaleX -_halfWidth;
+					imageGroup.verticalScrollPosition =  _halfHeight * image.scaleY - _halfHeight;
+				}
+			}
+			
+			protected function image_progressHandler(event:ProgressEvent):void
+			{
+				statusLabel.text = "Загрузка " + Math.floor((event.bytesLoaded * 100)/event.bytesTotal).toString();
+			}
+			
+			protected function image_ioErrorHandler(event:Event):void
+			{
+				statusLabel.text = "При загрузке изображения произошла ошибка :(";
+				busyIndicator.visible = false;
+			}
+			
+			
+			protected function resizeHandler(event:ResizeEvent):void
+			{
+				_halfHeight = height/2;
+				_halfWidth = width/2;
+				image.width = width;
+				image.height = height;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Scroller left="0" 
+				gestureZoom="onZoom(event)"
+				
+				id="scroller"
+				right="0" top="0" bottom="0">
+		<s:Group 
+			
+			id="imageGroup">
+			<s:BitmapImage id="image" complete="onComplete(event)"
+						   ioError="image_ioErrorHandler(event)" progress="image_progressHandler(event)"
+						   securityError="image_ioErrorHandler(event)"/>
+		</s:Group>
+	</s:Scroller>
+	<s:BusyIndicator id="busyIndicator" horizontalCenter="0" verticalCenter="0"/>
+	<s:Label id="statusLabel" width="100%" color="0xFFFFFF" horizontalCenter="0" textAlign="center"
+			 verticalCenter="0"/>
+</s:View>

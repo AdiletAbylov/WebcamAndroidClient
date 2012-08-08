@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		creationComplete="init(event)" title="Камеры" xmlns:renderers="views.renderers.*">
+	<fx:Script>
+		<![CDATA[
+			import model.WebcamsModel;
+			
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			protected function init(event:FlexEvent):void
+			{
+				webcamsList.dataProvider = new ArrayList(WebcamsModel.webcamsList);
+				
+			}
+			
+			protected function webcamsList_changeHandler(event:IndexChangeEvent):void
+			{
+				navigator.pushView(ImageView, {source: webcamsList.selectedItem.image});
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+		<s:List id="webcamsList"
+				change="webcamsList_changeHandler(event)"
+				left="0" right="0" top="0" bottom="0">
+			
+			<s:itemRenderer>
+				<fx:Component>
+					<renderers:CamsItemRenderer color="#FFFFFF"
+												verticalAlign="top"
+												paddingBottom="5"
+												paddingLeft="5"
+												paddingRight="5"
+												paddingTop="5"
+												/>
+				</fx:Component>
+			</s:itemRenderer>
+		</s:List>
+	
+</s:View>
