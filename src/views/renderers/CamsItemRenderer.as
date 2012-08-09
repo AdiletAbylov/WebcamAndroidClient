@@ -11,6 +11,9 @@ package views.renderers
 	import spark.components.BusyIndicator;
 	import spark.components.LabelItemRenderer;
 	import spark.core.DisplayObjectSharingMode;
+	import spark.effects.Fade;
+	import spark.effects.easing.EaseInOutBase;
+	import spark.effects.easing.Elastic;
 	import spark.primitives.BitmapImage;
 	import spark.primitives.Graphic;
 	
@@ -26,7 +29,7 @@ package views.renderers
 		{
 			super();
 		}
-				
+		
 		/**
 		 * @private
 		 *
@@ -71,8 +74,11 @@ package views.renderers
 		
 		private function destroySpinner():void
 		{
-			removeChild(spinner);
-			spinner = null;
+			if(spinner)
+			{
+				removeChild(spinner);
+				spinner = null;
+			}
 		}
 		
 		override protected function createLabelDisplay():void
@@ -104,6 +110,7 @@ package views.renderers
 			
 			backgroundGraphic = new Graphic();
 			backgroundGraphic.addElement(backgroundImage);
+			backgroundGraphic.alpha = 0;
 			addChildAt(backgroundGraphic, 0);
 			backgroundImage.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			backgroundImage.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
@@ -113,18 +120,20 @@ package views.renderers
 		protected function onLoadComplete(event:Event):void
 		{
 			destroySpinner();
+			var fadeEffect:Fade = new Fade(backgroundGraphic);
+			fadeEffect.alphaTo = 1;
+			//fadeEffect.easer = Elastic
+			fadeEffect.play();
 		}
 		
 		protected function onSecurityError(event:SecurityErrorEvent):void
 		{
 			destroySpinner();
-			trace(event.toString());
 		}
 		
 		protected function onIOError(event:IOErrorEvent):void
 		{
 			destroySpinner();
-			trace(event.toString());
 		}
 		
 		/**
@@ -151,7 +160,7 @@ package views.renderers
 												   unscaledHeight:Number):void
 		{
 			super.drawBackground(unscaledWidth, unscaledHeight);
-			    		
+			
 		}
 		
 		/**
@@ -165,11 +174,7 @@ package views.renderers
 												   unscaledHeight:Number):void
 		{
 			super.layoutContents(unscaledWidth, unscaledHeight);
-			if(labelDisplay)
-			{
-//				setElementPosition(labelDisplay, 0,0);
-//				setElementSize(labelDisplay, unscaledWidth, labelDisplay.height);
-			}
+			
 			if(backgroundGraphic)
 			{
 				calculateBackgroundImageSize(unscaledWidth, unscaledHeight);
@@ -180,7 +185,7 @@ package views.renderers
 				drawLabelbackground(unscaledWidth, unscaledHeight);
 			}
 			
-
+			
 			if(spinner)
 			{
 				var spinnerx:Number = unscaledWidth / 2 - spinner.width / 2;
@@ -192,7 +197,7 @@ package views.renderers
 		protected function drawLabelbackground(unscaledWidth:Number, unscaledHeight:Number):void
 		{
 			var paddingTop:Number = getStyle("paddingTop");
-			var bgHeight:Number =  paddingTop + labelDisplay.height;
+			var bgHeight:Number =  paddingTop + labelDisplay.textHeight;
 			setElementPosition(labelBackground, 0,0);
 			setElementSize(labelBackground, unscaledWidth, bgHeight);
 			labelBackground.graphics.clear();

@@ -35,6 +35,7 @@
 			<s:itemRenderer>
 				<fx:Component>
 					<renderers:CamsItemRenderer color="#FFFFFF"
+												alternatingItemColors="{[0x5c5c5c, 0x5c5c5c]}"
 												verticalAlign="top"
 												paddingBottom="5"
 												paddingLeft="5"

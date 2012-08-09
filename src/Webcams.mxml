@@ -6,6 +6,16 @@
 	</fx:Declarations>
 	<fx:Style>
 		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace renderers "views.renderers.*";
+		s|View
+		{
+			backgroundColor:#000000;
+		}
+		s|List
+		{
+			contentBackgroundAlpha:0;
+		}
+		
 		s|List s|VScrollBar
 		{
 			skinClass: ClassReference("spark.skins.mobile.supportClasses.MobileSkin")
